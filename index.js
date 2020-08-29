@@ -27,8 +27,65 @@ let persons = [
   },
 ];
 
+const generateId = () => {
+  let id = new Date().getTime();
+  return id + Math.floor(Math.random() * 50);
+};
+
 app.get("/api/persons", (req, res) => {
   res.json(persons);
+});
+
+app.get("/api/persons/:id", (req, res) => {
+  const id = +req.params.id;
+  const person = persons.find((person) => person.id === id);
+  person ? res.json(person) : res.status(404).end();
+});
+
+app.get("/info", (req, res) => {
+  const timeAccessed = new Date();
+  res.send(`<p>Phonebook has info for ${persons.length} people.</p>
+  <p>${timeAccessed}</p>`);
+});
+
+app.delete("/api/persons/:id", (req, res) => {
+  const id = +req.params.id;
+  const person = persons.find((person) => person.id === id);
+  if (person) {
+    persons = persons.filter((person) => person.id !== id);
+    res.status(204).end();
+  } else {
+    res.status(404).end();
+  }
+});
+
+app.post("/api/persons", (req, res) => {
+  const body = req.body;
+
+  // checks
+  if (!body.name) {
+    return res.status(400).json({ error: "Name is missing" });
+  }
+  if (!body.number) {
+    return res.status(400).json({ error: "Number is missing" });
+  }
+  if (
+    persons.find(
+      (person) =>
+        person.name.toLowerCase() === body.name.toLowerCase() ||
+        person.number === body.number
+    )
+  ) {
+    return res.status(400).json({ error: "Name or number must be unique" });
+  }
+
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: generateId(),
+  };
+  persons = persons.concat(person);
+  res.json(person);
 });
 
 const PORT = 3001;
