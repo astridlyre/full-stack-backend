@@ -1,9 +1,12 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
+app.use(express.static("build"));
 
 morgan.token("body", function (req, res) {
   return JSON.stringify(req.body);
@@ -62,7 +65,7 @@ app.delete("/api/persons/:id", (req, res) => {
   const person = persons.find((person) => person.id === id);
   if (person) {
     persons = persons.filter((person) => person.id !== id);
-    res.status(204).end();
+    res.json(person).status(204).end();
   } else {
     res.status(404).end();
   }
@@ -95,6 +98,20 @@ app.post("/api/persons", (req, res) => {
   };
   persons = persons.concat(person);
   res.json(person);
+});
+
+app.put("/api/persons/:id", (req, res) => {
+  const body = req.body;
+  const id = +req.params.id;
+
+  if (!body.name) {
+    return res.status(400).json({ error: "Name is missing" });
+  }
+  if (!body.number) {
+    return res.status(400).json({ error: "Number is missing" });
+  }
+  persons = persons.map((person) => (person.id !== id ? person : body));
+  res.json(body);
 });
 
 const unknownEndpoint = (req, res, next) => {
