@@ -18,4 +18,4 @@ Added morgan middleware and configured it to show the data sent by creating a ne
 
 #### 3.9 - 3.11
 
-Hosted the phonebook backend and frontend on Heroku. Link [https://radiant-waters-55598.herokuapp.com/](https://radiant-waters-55598.herokuapp.com/)
+Hosted the phonebook backend and frontend on Heroku. Link [http://myphonebook69.herokuapp.com/](http://myphonebook69.herokuapp.com/)
