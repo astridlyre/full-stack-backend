@@ -15,3 +15,7 @@ It's not possible to delete by user ID to the unique URL of the phonebook entry.
 #### 3.7 - 3.8
 
 Added morgan middleware and configured it to show the data sent by creating a new token and using JSON.stringify.
+
+#### 3.9 - 3.11
+
+Hosted the phonebook backend and frontend on Heroku. Link [https://radiant-waters-55598.herokuapp.com/](https://radiant-waters-55598.herokuapp.com/)
