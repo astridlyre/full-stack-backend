@@ -1,6 +1,10 @@
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
+const PhonebookEntry = require("./modules/numbers");
+const { response } = require("express");
+const { deleteModel } = require("mongoose");
 
 const app = express();
 
@@ -16,102 +20,91 @@ app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
 );
 
-let persons = [
-  {
-    name: "Arto Hellas",
-    number: "040-123456",
-    id: 1,
-  },
-  {
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-    id: 2,
-  },
-  {
-    name: "Dan Abramov",
-    number: "12-43-234345",
-    id: 3,
-  },
-  {
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-    id: 4,
-  },
-];
-
-const generateId = () => {
-  let id = new Date().getTime();
-  return id + Math.floor(Math.random() * 50);
-};
-
 app.get("/api/persons", (req, res) => {
-  res.json(persons);
+  PhonebookEntry.find({})
+    .then((results) => {
+      results ? res.json(results) : res.status(204).end();
+    })
+    .catch((e) => {
+      console.log(e);
+      res.status(500).end();
+    });
 });
 
 app.get("/api/persons/:id", (req, res) => {
-  const id = +req.params.id;
-  const person = persons.find((person) => person.id === id);
-  person ? res.json(person) : res.status(404).end();
+  PhonebookEntry.find({ _id: req.params.id })
+    .then((result) => {
+      result ? res.json(result) : res.status(404).end();
+    })
+    .catch((e) => {
+      console.log(e);
+      res.status(500).end();
+    });
 });
 
 app.get("/info", (req, res) => {
-  const timeAccessed = new Date();
-  res.send(`<p>Phonebook has info for ${persons.length} people.</p>
-  <p>${timeAccessed}</p>`);
+  PhonebookEntry.find({})
+    .then((results) => {
+      results
+        ? res.send(`<p>Phonebook has info for ${results.length} people.</p>
+    <p>${new Date()}</p>`)
+        : res.status(204).end();
+    })
+    .catch((e) => {
+      console.log(e);
+      res.status(500).end();
+    });
 });
 
 app.delete("/api/persons/:id", (req, res) => {
-  const id = +req.params.id;
-  const person = persons.find((person) => person.id === id);
-  if (person) {
-    persons = persons.filter((person) => person.id !== id);
-    res.json(person).status(204).end();
-  } else {
-    res.status(404).end();
-  }
+  PhonebookEntry.findByIdAndDelete(req.params.id)
+    .then((result) => {
+      console.log(`Deleted ${result.name} from the phonebook!`);
+      result ? res.json(result) : res.status(404).end();
+    })
+    .catch((e) => {
+      console.log(e);
+      res.status(500).end();
+    });
 });
 
 app.post("/api/persons", (req, res) => {
-  const body = req.body;
-
   // checks
-  if (!body.name) {
+  if (!req.body.name) {
     return res.status(400).json({ error: "Name is missing" });
   }
-  if (!body.number) {
+  if (!req.body.number) {
     return res.status(400).json({ error: "Number is missing" });
   }
-  if (
-    persons.find(
-      (person) =>
-        person.name.toLowerCase() === body.name.toLowerCase() ||
-        person.number === body.number
-    )
-  ) {
-    return res.status(400).json({ error: "Name or number must be unique" });
-  }
-
-  const person = {
-    name: body.name,
-    number: body.number,
-    id: generateId(),
-  };
-  persons = persons.concat(person);
-  res.json(person);
+  const entry = new PhonebookEntry({
+    name: req.body.name,
+    number: req.body.number,
+  });
+  entry.save().then((savedEntry) => {
+    res.json(savedEntry);
+  });
 });
 
 app.put("/api/persons/:id", (req, res) => {
-  const body = req.body;
-  const id = +req.params.id;
-
-  if (!body.name) {
+  if (!req.body.name) {
     return res.status(400).json({ error: "Name is missing" });
   }
-  if (!body.number) {
+  if (!req.body.number) {
     return res.status(400).json({ error: "Number is missing" });
   }
-  persons = persons.map((person) => (person.id !== id ? person : body));
-  res.json(body);
+  PhonebookEntry.findByIdAndUpdate(
+    req.params.id,
+    { number: req.body.number },
+    { new: true }
+  )
+    .then((result) => {
+      console.log(`Updated ${result.name} in the phonebook!`);
+      result ? res.json(result) : res.status(204).end();
+    })
+    .catch((e) => {
+      console.log(e);
+      res.status(500).end();
+    });
 });
 
 const unknownEndpoint = (req, res, next) => {
