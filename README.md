@@ -27,3 +27,7 @@ Created command line interface for mongo db add and get number functions, locate
 #### 3.13 - 3.18
 
 Entries are now fetched from database. Entries are now saved to database. Calls to update the number or delete a number are also working now. Moved error handling to middleware. Verified that API routes work directly with browser and Postman.
+
+#### 3.19 - 3.21
+
+Added validation using mongoose-unique-validator package. Expanded frontend to catch errors and log the message to a notification. Deployed the database to production. Link [https://myphonebook69.herokuapp.com/](https://myphonebook69.herokuapp.com/)

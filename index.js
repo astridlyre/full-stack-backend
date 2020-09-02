@@ -57,13 +57,10 @@ app.delete("/api/persons/:id", (req, res, next) => {
 });
 
 app.post("/api/persons", (req, res, next) => {
-  // checks
-  if (!req.body.name) {
-    return res.status(400).json({ error: "Name is missing" });
-  }
-  if (!req.body.number) {
+  if (!req.body.name) return res.status(400).json({ error: "Name is missing" });
+  if (!req.body.number)
     return res.status(400).json({ error: "Number is missing" });
-  }
+
   const entry = new PhonebookEntry({
     name: req.body.name,
     number: req.body.number,
@@ -105,6 +102,8 @@ const errorHandler = (error, req, res, next) => {
   console.log(error.message);
   if (error.name === "CastError") {
     return res.status(400).send({ error: "Invalid Id" });
+  } else if (error.name === "ValidationError") {
+    return res.status(400).json({ error: error.message });
   }
 
   next(error);
