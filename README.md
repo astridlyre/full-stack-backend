@@ -31,3 +31,7 @@ Entries are now fetched from database. Entries are now saved to database. Calls 
 #### 3.19 - 3.21
 
 Added validation using mongoose-unique-validator package. Expanded frontend to catch errors and log the message to a notification. Deployed the database to production. Link [https://myphonebook69.herokuapp.com/](https://myphonebook69.herokuapp.com/)
+
+#### 3.22
+
+Added ESLint to app, and fixed all warnings.

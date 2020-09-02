@@ -7,6 +7,7 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "build:ui": "@powershell -NoProfile -ExecutionPolicy Unrestricted -Command ./script.ps1",
+    "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Astrid Lyre",
@@ -20,6 +21,7 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "eslint": "^7.8.1",
     "nodemon": "^2.0.4"
   }
 }

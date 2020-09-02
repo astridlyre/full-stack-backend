@@ -1,21 +1,21 @@
-const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator");
+const mongoose = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator')
 
-const url = process.env.MONGODB_URI;
+const url = process.env.MONGODB_URI
 
-console.log("connecting to", url);
+console.log('connecting to', url)
 
-mongoose.set("useFindAndModify", false);
-mongoose.set("useCreateIndex", true);
+mongoose.set('useFindAndModify', false)
+mongoose.set('useCreateIndex', true)
 
 mongoose
   .connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then((result) => {
-    console.log("connected to MongoDB!");
+  .then(() => {
+    console.log('connected to MongoDB!')
   })
-  .catch((e) => {
-    console.log("error connecting to MongoDB: ", e.message);
-  });
+  .catch(e => {
+    console.log('error connecting to MongoDB: ', e.message)
+  })
 
 const numberSchema = new mongoose.Schema({
   name: {
@@ -30,16 +30,16 @@ const numberSchema = new mongoose.Schema({
     maxlength: 20,
     required: true,
   },
-});
+})
 
-numberSchema.plugin(uniqueValidator);
+numberSchema.plugin(uniqueValidator)
 
-numberSchema.set("toJSON", {
+numberSchema.set('toJSON', {
   transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
   },
-});
+})
 
-module.exports = mongoose.model("Number", numberSchema);
+module.exports = mongoose.model('Number', numberSchema)
