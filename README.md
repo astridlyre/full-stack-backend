@@ -18,12 +18,12 @@ Added morgan middleware and configured it to show the data sent by creating a ne
 
 #### 3.9 - 3.11
 
-Hosted the phonebook backend and frontend on Heroku. Link [https://radiant-waters-55598.herokuapp.com/](https://radiant-waters-55598.herokuapp.com/)
+Hosted the phonebook backend and frontend on Heroku. Link [https://myphonebook69.herokuapp.com/](https://myphonebook69.herokuapp.com/)
 
 #### 3.12
 
 Created command line interface for mongo db add and get number functions, located in file 'mongo.js'
 
-#### 3.13 - 3.14
+#### 3.13 - 3.18
 
-Entries are now fetched from database. Entries are now saved to database. Calls to update the number or delete a number are also working now.
+Entries are now fetched from database. Entries are now saved to database. Calls to update the number or delete a number are also working now. Moved error handling to middleware. Verified that API routes work directly with browser and Postman.

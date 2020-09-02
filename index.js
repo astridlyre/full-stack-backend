@@ -8,9 +8,9 @@ const { deleteModel } = require("mongoose");
 
 const app = express();
 
+app.use(express.static("build"));
 app.use(express.json());
 app.use(cors());
-app.use(express.static("build"));
 
 morgan.token("body", function (req, res) {
   return JSON.stringify(req.body);
@@ -20,29 +20,23 @@ app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
 );
 
-app.get("/api/persons", (req, res) => {
+app.get("/api/persons", (req, res, next) => {
   PhonebookEntry.find({})
     .then((results) => {
       results ? res.json(results) : res.status(204).end();
     })
-    .catch((e) => {
-      console.log(e);
-      res.status(500).end();
-    });
+    .catch((e) => next(e));
 });
 
-app.get("/api/persons/:id", (req, res) => {
+app.get("/api/persons/:id", (req, res, next) => {
   PhonebookEntry.find({ _id: req.params.id })
     .then((result) => {
       result ? res.json(result) : res.status(404).end();
     })
-    .catch((e) => {
-      console.log(e);
-      res.status(500).end();
-    });
+    .catch((e) => next(e));
 });
 
-app.get("/info", (req, res) => {
+app.get("/info", (req, res, next) => {
   PhonebookEntry.find({})
     .then((results) => {
       results
@@ -50,25 +44,19 @@ app.get("/info", (req, res) => {
     <p>${new Date()}</p>`)
         : res.status(204).end();
     })
-    .catch((e) => {
-      console.log(e);
-      res.status(500).end();
-    });
+    .catch((e) => next(e));
 });
 
-app.delete("/api/persons/:id", (req, res) => {
+app.delete("/api/persons/:id", (req, res, next) => {
   PhonebookEntry.findByIdAndDelete(req.params.id)
     .then((result) => {
       console.log(`Deleted ${result.name} from the phonebook!`);
-      result ? res.json(result) : res.status(404).end();
+      result ? res.json(result) : res.status(204).end();
     })
-    .catch((e) => {
-      console.log(e);
-      res.status(500).end();
-    });
+    .catch((e) => next(e));
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   // checks
   if (!req.body.name) {
     return res.status(400).json({ error: "Name is missing" });
@@ -80,12 +68,15 @@ app.post("/api/persons", (req, res) => {
     name: req.body.name,
     number: req.body.number,
   });
-  entry.save().then((savedEntry) => {
-    res.json(savedEntry);
-  });
+  entry
+    .save()
+    .then((savedEntry) => {
+      res.json(savedEntry);
+    })
+    .catch((e) => next(e));
 });
 
-app.put("/api/persons/:id", (req, res) => {
+app.put("/api/persons/:id", (req, res, next) => {
   if (!req.body.name) {
     return res.status(400).json({ error: "Name is missing" });
   }
@@ -101,10 +92,7 @@ app.put("/api/persons/:id", (req, res) => {
       console.log(`Updated ${result.name} in the phonebook!`);
       result ? res.json(result) : res.status(204).end();
     })
-    .catch((e) => {
-      console.log(e);
-      res.status(500).end();
-    });
+    .catch((e) => next(e));
 });
 
 const unknownEndpoint = (req, res, next) => {
@@ -112,6 +100,17 @@ const unknownEndpoint = (req, res, next) => {
 };
 
 app.use(unknownEndpoint);
+
+const errorHandler = (error, req, res, next) => {
+  console.log(error.message);
+  if (error.name === "CastError") {
+    return res.status(400).send({ error: "Invalid Id" });
+  }
+
+  next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
